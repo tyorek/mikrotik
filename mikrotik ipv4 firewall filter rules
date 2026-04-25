@@ -1,0 +1,61 @@
+ 0  D ;;; special dummy rule to show fasttrack counters
+      chain=forward action=passthrough 
+
+ 1    ;;; Drop inbound DNS replies/reflection UDP src port 53
+      chain=input action=drop protocol=udp in-interface-list=WAN src-port=53 
+
+ 2    ;;; Drop inbound TCP DNS just in case
+      chain=input action=drop protocol=tcp in-interface-list=WAN dst-port=53 
+
+ 3    ;;; defconf: accept established,related,untracked
+      chain=input action=accept connection-state=established,related,untracked 
+
+ 4    chain=input action=accept src-address-list=allowed in-interface-list=LAN log=no log-prefix="" 
+
+ 5    chain=input action=accept src-address-list=allowed in-interface-list=Main-Wifi log=no log-prefix="" 
+
+ 6    chain=input action=drop in-interface-list=DMZ log=no log-prefix="" 
+
+ 7    chain=input action=drop in-interface-list=DNS log=no log-prefix="" 
+
+ 8    ;;; Block external DNS queries to router
+      chain=input action=drop protocol=udp in-interface-list=WAN dst-port=53 
+
+ 9    ;;; Block external DNS TCP to router
+      chain=input action=drop protocol=tcp in-interface-list=WAN dst-port=53 
+
+10    chain=input action=drop in-interface-list=IOT log=no log-prefix="" 
+
+11    ;;; defconf: drop invalid
+      chain=input action=drop connection-state=invalid 
+
+12    ;;; defconf: accept ICMP
+      chain=input action=accept protocol=icmp 
+
+13    ;;; defconf: accept to local loopback (for CAPsMAN)
+      chain=input action=accept dst-address=127.0.0.1 
+
+14    ;;; defconf: drop all not coming from LAN
+      chain=input action=drop src-address-list=allowed in-interface-list=!LAN log=no log-prefix="" 
+
+15    chain=forward action=reject reject-with=icmp-network-unreachable src-address=185.38.149.140 in-interface-list=WAN log=no log-prefix="" 
+
+16    chain=forward action=reject reject-with=icmp-network-unreachable src-address=87.236.176.0/24 in-interface-list=WAN log=no log-prefix="" 
+
+17    chain=forward action=reject reject-with=icmp-network-unreachable src-address=138.255.223.218 in-interface-list=WAN log=no log-prefix="" 
+
+18    chain=forward action=reject reject-with=icmp-network-unreachable src-address=177.75.224.0/24 in-interface-list=WAN log=no log-prefix="" 
+
+19    ;;; Drop invalid
+      chain=forward action=drop connection-state=invalid log=no log-prefix="" 
+
+20    ;;; defconf: fasttrack
+      chain=forward action=fasttrack-connection connection-state=established,related 
+
+21    chain=forward action=accept in-interface-list=DMZ out-interface-list=DNS log=no log-prefix="" 
+
+22    ;;; defconf: accept established,related, untracked
+      chain=forward action=accept connection-state=established,related,untracked 
+
+23    ;;; defconf: drop all from WAN not DSTNATed
+      chain=forward action=drop connection-state=new connection-nat-state=!dstnat in-interface-list=WAN log=no log-prefix="" 
