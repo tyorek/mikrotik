@@ -1,0 +1,72 @@
+ ;;; defconf: accept established,related,untracked
+      chain=input action=accept connection-state=established,related,untracked log=no log-prefix="" 
+
+ 1    chain=input action=accept in-interface-list=LAN log=no log-prefix="" 
+
+ 2    chain=input action=accept in-interface-list=Main-Wifi log=no log-prefix="" 
+
+ 3    ;;; defconf: drop invalid
+      chain=input action=drop connection-state=invalid log=no log-prefix="" 
+
+ 4    ;;; defconf: accept ICMPv6
+      chain=input action=accept protocol=icmpv6 log=no log-prefix="" 
+
+ 5    ;;; defconf: accept UDP traceroute
+      chain=input action=accept protocol=udp dst-port=33434-33534 log=no log-prefix="" 
+
+ 6    ;;; defconf: accept DHCPv6-Client prefix delegation.
+      chain=input action=accept protocol=udp src-address=fe80::/10 dst-port=546 log=no log-prefix="" 
+
+ 7    ;;; defconf: accept IKE
+      chain=input action=accept protocol=udp dst-port=500,4500 log=no log-prefix="" 
+
+ 8    ;;; defconf: accept ipsec AH
+      chain=input action=accept protocol=ipsec-ah log=no log-prefix="" 
+
+ 9    ;;; defconf: accept all that matches ipsec policy
+      chain=input action=accept log=no log-prefix="" ipsec-policy=in,ipsec 
+
+10    ;;; defconf: drop everything else not coming from LAN
+      chain=input action=drop src-address-list=allowed in-interface-list=!DMZ log=no log-prefix="" 
+
+11    ;;; defconf: drop everything else not coming from LAN
+      chain=input action=drop src-address-list=allowed in-interface-list=!Main-Wifi log=no log-prefix="" 
+
+12    ;;; defconf: drop everything else not coming from LAN
+      chain=input action=drop src-address-list=!allowed in-interface-list=!LAN log=no log-prefix="" 
+
+13    ;;; defconf: accept ipsec ESP
+      chain=input action=accept protocol=ipsec-esp log=no log-prefix="" 
+
+14    ;;; defconf: accept established,related,untracked
+      chain=forward action=accept connection-state=established,related,untracked log=no log-prefix="" 
+
+15    ;;; defconf: drop invalid
+      chain=forward action=drop connection-state=invalid log=no log-prefix="" 
+
+16    ;;; defconf: drop packets with bad src ipv6
+      chain=forward action=drop src-address-list=bad_ipv6 log=no log-prefix="" 
+
+17    ;;; defconf: drop packets with bad dst ipv6
+      chain=forward action=drop dst-address-list=bad_ipv6 log=no log-prefix="" 
+
+18    ;;; defconf: rfc4890 drop hop-limit=1
+      chain=forward action=drop protocol=icmpv6 hop-limit=equal:1 log=no log-prefix="" 
+
+19    ;;; defconf: accept ICMPv6
+      chain=forward action=accept protocol=icmpv6 log=no log-prefix="" 
+
+20    ;;; defconf: accept HIP
+      chain=forward action=accept protocol=139 log=no log-prefix="" 
+
+21    ;;; defconf: accept IKE
+      chain=forward action=accept protocol=udp dst-port=500,4500 log=no log-prefix="" 
+
+22    ;;; defconf: drop everything else not coming from LAN
+      chain=forward action=drop src-address-list=!allowed in-interface-list=!DMZ log=no log-prefix="" 
+
+23    ;;; defconf: drop everything else not coming from LAN
+      chain=forward action=drop src-address-list=!allowed in-interface-list=!Main-Wifi log=no log-prefix="" 
+
+24    ;;; defconf: drop everything else not coming from LAN
+      chain=forward action=drop src-address-list=!allowed in-interface-list=!LAN log=no log-prefix="" 
